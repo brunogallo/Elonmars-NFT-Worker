@@ -2,7 +2,8 @@ const express = require("express");
 const { fork } = require('child_process');
 const fs = require('fs');
 const Web3 = require('web3');
-const web3 = new Web3(new Web3.providers.HttpProvider("https://bsc-dataseed.binance.org/"));
+// const web3 = new Web3(new Web3.providers.HttpProvider("https://bsc-dataseed.binance.org/"));
+const web3 = new Web3(new Web3.providers.HttpProvider("https://data-seed-prebsc-1-s1.binance.org:8545/"));
 
 const walletPayment = "0x6ACBB20B1035eF8ae0CFfF3D5e61a1A70d9b72e2";
 const price = 0.0065;
