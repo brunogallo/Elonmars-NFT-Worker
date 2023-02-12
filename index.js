@@ -8,6 +8,7 @@ const walletPayment = "0x6ACBB20B1035eF8ae0CFfF3D5e61a1A70d9b72e2";
 const price = 0.0065;
 
 const backupBuyers = 'buyers.txt';
+const backupTx = 'tx.txt';
 
 var bodyParser = require('body-parser');
 var app = express();
@@ -31,10 +32,10 @@ async function ReloadBuyers() {
       const addresses = fileContent.split('\n');
       
       addresses.forEach(address => {
-        var addressStr = address.trim();
-        if (addressStr != "") {
+        var walletAddress = address.trim();
+        if (walletAddress != "") {
           var worker = fork('./worker.js');
-          worker.send({ addressStr });
+          worker.send({ walletAddress });
         }
       });
     }
@@ -45,37 +46,76 @@ async function ReloadBuyers() {
 }
 
 async function SaveAddress(address) {
-  try {
+  return new Promise((resolve, reject) => {
     fs.readFile(backupBuyers, 'utf-8', function (error, fileContent) {
       if (error) {
         console.error(error);
+        return resolve(false);
       } else {
         const addresses = fileContent.split('\n');
         if (addresses.includes(address)) {
           console.log(`The address ${address} already exists in ${backupBuyers}.`);
+          return resolve(false);
         } else {
           fs.appendFile(backupBuyers, `\n${address}`, function (error) {
             if (error) {
               console.error(error);
+              return resolve(false);
             } else {
               console.log(`The address ${address} has been added to ${backupBuyers}.`);
+              return resolve(true);
             }
           });
         }
       }
     });
+  });
+}
+
+async function SaveTx(txHash) {
+  try {
+    const fileContent = await new Promise((resolve, reject) => {
+      fs.readFile(backupTx, 'utf-8', (error, content) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(content);
+        }
+      });
+    });
+
+    const txs = fileContent.split('\n');
+    if (txs.includes(txHash)) {
+      console.log(`The TX ${txHash} already exists in ${backupTx}.`);
+      return false;
+    } else {
+      await new Promise((resolve, reject) => {
+        fs.appendFile(backupTx, `\n${txHash}`, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      console.log(`The TX ${txHash} has been added to ${backupTx}.`);
+      return true;
+    }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return false;
   }
 }
 
 async function SendNewWallet(res, address, txHash, isDev) {
   try {
+    var walletAddress = address;
     var validation;
     if (!isDev)
       web3.eth.getTransaction(txHash)
       .then(transaction => {
-        validation = (transaction.from == address) && (transaction.from == walletPayment) && (transaction.value / (10 ** 18) == price);
+        validation = (transaction.from == address) && (transaction.from >= walletPayment) && (transaction.value / (10 ** 18) == price);
 
         // console.log('Transaction: ', transaction);
         // console.log('transaction.from: ', transaction.from);
@@ -84,24 +124,34 @@ async function SendNewWallet(res, address, txHash, isDev) {
         // console.log('transaction.value / (10 ** 18): ', transaction.value / (10 ** 18));
       })
       .catch(error => {
-        res.send('Transaction error');
-        return;
+        validation = false;
       });
 
     if ((isDev) || (validation)) {
+      if (await SaveAddress(walletAddress)) {
+        if (await SaveTx(txHash)) {
 
-      await SaveAddress(address);
-
-      const worker = fork('./worker.js');
-      worker.send({ address });
-      
-      res.send(`Worker started for address: ${address}.`);
+          const worker = fork('./worker.js');
+          worker.send({ walletAddress });
+          
+          var response = [true, `Worker started for address: ${walletAddress}.`];
+          // res.send(`Worker started for address: ${walletAddress}.`);
+        } else {
+          var response = [false, `Purchase cancelled, transaction already used.`];
+          // res.send(`Purchase cancelled, transaction already used.`);
+        }
+      } else {
+        var response = [false, `Purchase cancelled, address already exists.`];
+      }
     } else {
-      res.send(`Purchase cancelled, error validating payment information.`);
+      var response = [false, `Purchase cancelled, error validating payment information.`];
+      // res.send(`Purchase cancelled, error validating payment information.`);
     }
   } catch (error) {
     console.log(error);
   }
+
+  res.send(response);
 }
 
 app.get('/start/:address', (req, res) => {

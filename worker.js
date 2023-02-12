@@ -17,7 +17,7 @@ process.on('message', async (message) => {
     //     console.log(`ADDRESS ${address}`);
     // });
 
-    wallet = message.addressStr;
+    wallet = message.walletAddress;
     await Play();
 });
 
@@ -81,8 +81,10 @@ async function makePostRequestClaimStake(url, walletAddress, position, diamond) 
       }
     
       await new Promise(resolve => setTimeout(resolve, jsonNextClaimValue));
+
+      return true;
     } catch (error) {
-      
+      return false;
     }
   
   }
@@ -147,22 +149,24 @@ async function makePostRequestClaimStake(url, walletAddress, position, diamond) 
     while (true) {
         const walletAddress = wallet;
 
-        await getNextClaim(wallet);
+        var execute = await getNextClaim(wallet);
 
-        console.log();
-        console.log(`INICIANDO PARA A WALLET (${walletAddress})`);
-        console.log();
-
-        await ClaimDiamond(walletAddress);
-
-        await ClaimBird(walletAddress);
-
-        await SwapResource(walletAddress);
-
-        await SwapEgg(walletAddress);
-
-        await StakeDiamond(walletAddress);
-
-        await StakeBird(walletAddress);
+        if (execute) {
+          console.log();
+          console.log(`INICIANDO PARA A WALLET (${walletAddress})`);
+          console.log();
+  
+          await ClaimDiamond(walletAddress);
+  
+          await ClaimBird(walletAddress);
+  
+          await SwapResource(walletAddress);
+  
+          await SwapEgg(walletAddress);
+  
+          await StakeDiamond(walletAddress);
+  
+          await StakeBird(walletAddress);
+        }
     }
   }
