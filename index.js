@@ -2,6 +2,7 @@ const express = require("express");
 const { fork } = require('child_process');
 const fs = require('fs');
 const Web3 = require('web3');
+const BigNumber = require('bignumber.js');
 // const web3 = new Web3(new Web3.providers.HttpProvider("https://bsc-dataseed.binance.org/"));
 const web3 = new Web3(new Web3.providers.HttpProvider("https://data-seed-prebsc-1-s1.binance.org:8545/"));
 
@@ -109,24 +110,24 @@ async function SaveTx(txHash) {
   }
 }
 
+async function validateTransaction(txHash, address) {
+  try {
+    const transaction = await web3.eth.getTransaction(txHash);
+    const validation = (String(transaction.from).toLowerCase() == String(address).toLowerCase()) && 
+      (String(transaction.to).toLowerCase() == String(walletPayment).toLowerCase()) && 
+      (BigNumber(transaction.value / (10 ** 18)) >= BigNumber(price));
+
+    return validation;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
 async function SendNewWallet(res, address, txHash, isDev) {
   try {
     var walletAddress = address;
-    var validation;
-    if (!isDev)
-      web3.eth.getTransaction(txHash)
-      .then(transaction => {
-        validation = (transaction.from == address) && (transaction.from == walletPayment) && (transaction.value / (10 ** 18) >= price);
-
-        // console.log('Transaction: ', transaction);
-        // console.log('transaction.from: ', transaction.from);
-        // console.log('transaction.to: ', transaction.to);
-        // console.log('transaction.value: ', transaction.value);
-        // console.log('transaction.value / (10 ** 18): ', transaction.value / (10 ** 18));
-      })
-      .catch(error => {
-        validation = false;
-      });
+    var validation = await validateTransaction(txHash, address);
 
     if ((isDev) || (validation)) {
       if (await SaveAddress(walletAddress)) {
