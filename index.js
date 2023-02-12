@@ -115,7 +115,7 @@ async function SendNewWallet(res, address, txHash, isDev) {
     if (!isDev)
       web3.eth.getTransaction(txHash)
       .then(transaction => {
-        validation = (transaction.from == address) && (transaction.from >= walletPayment) && (transaction.value / (10 ** 18) == price);
+        validation = (transaction.from == address) && (transaction.from == walletPayment) && (transaction.value / (10 ** 18) >= price);
 
         // console.log('Transaction: ', transaction);
         // console.log('transaction.from: ', transaction.from);
