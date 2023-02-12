@@ -110,7 +110,7 @@ async function makePostRequestClaimStake(url, walletAddress, position, diamond) 
   }
   
   async function StakeDiamond(walletAddress) {
-    for (var index = 0; index < 9; index++) {
+    for (var index = 0; index < 11; index++) {
       try {
         var log = await makePostRequestClaimStake(urlStakeDiamond, walletAddress, index, 1);
       } catch (error) {

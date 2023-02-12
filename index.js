@@ -156,7 +156,7 @@ async function SendNewWallet(res, address, txHash, isDev) {
   res.send(response);
 }
 
-app.get('/start/:address', (req, res) => {
+app.post('/start/:address', (req, res) => {
   try {
     const address = req.params.address;
     const txHash = String(req.body.txHash);
