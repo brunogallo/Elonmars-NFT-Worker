@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 async function ReloadBuyers() {
+  try {
   fs.readFile(backupBuyers, 'utf-8', function (error, fileContent) {
     if (error) {
       console.error(error);
@@ -38,66 +39,81 @@ async function ReloadBuyers() {
       });
     }
   });
+  } catch (error) {
+    console.log(error);  
+  }
 }
 
 async function SaveAddress(address) {
-  fs.readFile(backupBuyers, 'utf-8', function (error, fileContent) {
-    if (error) {
-      console.error(error);
-    } else {
-      const addresses = fileContent.split('\n');
-      if (addresses.includes(address)) {
-        console.log(`The address ${address} already exists in ${backupBuyers}.`);
+  try {
+    fs.readFile(backupBuyers, 'utf-8', function (error, fileContent) {
+      if (error) {
+        console.error(error);
       } else {
-        fs.appendFile(backupBuyers, `\n${address}`, function (error) {
-          if (error) {
-            console.error(error);
-          } else {
-            console.log(`The address ${address} has been added to ${backupBuyers}.`);
-          }
-        });
+        const addresses = fileContent.split('\n');
+        if (addresses.includes(address)) {
+          console.log(`The address ${address} already exists in ${backupBuyers}.`);
+        } else {
+          fs.appendFile(backupBuyers, `\n${address}`, function (error) {
+            if (error) {
+              console.error(error);
+            } else {
+              console.log(`The address ${address} has been added to ${backupBuyers}.`);
+            }
+          });
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function SendNewWallet(res, address, txHash, isDev) {
-  var validation;
-  if (!isDev)
-    web3.eth.getTransaction(txHash)
-    .then(transaction => {
-      validation = (transaction.from == address) && (transaction.from == walletPayment) && (transaction.value / (10 ** 18) == price);
+  try {
+    var validation;
+    if (!isDev)
+      web3.eth.getTransaction(txHash)
+      .then(transaction => {
+        validation = (transaction.from == address) && (transaction.from == walletPayment) && (transaction.value / (10 ** 18) == price);
 
-      // console.log('Transaction: ', transaction);
-      // console.log('transaction.from: ', transaction.from);
-      // console.log('transaction.to: ', transaction.to);
-      // console.log('transaction.value: ', transaction.value);
-      // console.log('transaction.value / (10 ** 18): ', transaction.value / (10 ** 18));
-    })
-    .catch(error => {
-      res.send('Transaction error');
-      return;
-    });
+        // console.log('Transaction: ', transaction);
+        // console.log('transaction.from: ', transaction.from);
+        // console.log('transaction.to: ', transaction.to);
+        // console.log('transaction.value: ', transaction.value);
+        // console.log('transaction.value / (10 ** 18): ', transaction.value / (10 ** 18));
+      })
+      .catch(error => {
+        res.send('Transaction error');
+        return;
+      });
 
-  if ((isDev) || (validation)) {
+    if ((isDev) || (validation)) {
 
-    await SaveAddress(address);
+      await SaveAddress(address);
 
-    const worker = fork('./worker.js');
-    worker.send({ address });
-    
-    res.send(`Worker started for address: ${address}.`);
-  } else {
-    res.send(`Purchase cancelled, error validating payment information.`);
+      const worker = fork('./worker.js');
+      worker.send({ address });
+      
+      res.send(`Worker started for address: ${address}.`);
+    } else {
+      res.send(`Purchase cancelled, error validating payment information.`);
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
 app.get('/start/:address', (req, res) => {
-  const address = req.params.address;
-  const txHash = String(req.body.txHash);
-  const isDev = req.body.isDev;
+  try {
+    const address = req.params.address;
+    const txHash = String(req.body.txHash);
+    const isDev = req.body.isDev;
 
-  SendNewWallet(res, address, txHash, isDev);
+    SendNewWallet(res, address, txHash, isDev);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 ReloadBuyers();
