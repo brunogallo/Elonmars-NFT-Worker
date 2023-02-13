@@ -75,9 +75,9 @@ async function makePostRequestClaimStake(action, walletAddress, position, diamon
     try {
       let now = moment();
       // var jsonStakedAt = moment(response.data.stakedDiamond[0].staked_at);
-      if (response.data.stakedDiamond != null)
+      if ((response.data.stakedDiamond != null) && (response.data.stakedDiamond.length > 0))
         var jsonNextClaim = moment(response.data.stakedDiamond[0].staked_at).add(181, 'minutes');
-      else if (response.data.stakedBirds != null)
+        if ((response.data.stakedBirds != null) && (response.data.stakedBirds.length > 0))
         var jsonNextClaim = moment(response.data.stakedBirds[0].staked_at).add(181, 'minutes');
       else
       var jsonNextClaim = 0;
@@ -92,7 +92,7 @@ async function makePostRequestClaimStake(action, walletAddress, position, diamon
       if (wait)
         await new Promise(resolve => setTimeout(resolve, jsonNextClaimValue));
     } catch (error) {
-      
+
     }
 
     return response.data;
