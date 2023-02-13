@@ -27,16 +27,16 @@ app.use(bodyParser.json());
 // const minhas = 0x4C3F032fDC892Af2fdAEdD8519B5240e39d06d52, 0x757f48F4d64bf679eF8416E42bE0bE1d3814a9Ea, 0xef91FefD1E3695e6D0Ba300893FD45b3Fa0e0559, 0xc1703056e85Ce988Eb542d1d7CaEDCde066505f6, 0xCE43dC6544da19E9651cED4A1Fa2Eb8bB4861fCD, 0xF6fEDf2628E19FaCca87B9de99efA10Ef237c627, 0x9E6142A8CcE077a4d4B7f2daF9e0A4840472adb7, 0x9B6C64C33397Dd8695C7c7D90B0CE7441f4309E0, 0xeB29596302b3a0FE3D61F95dc7eC7a299eDEA4c4, 0xa10d50C0bf04A10adC4489fF5cdfB6eb5810Bf2a
 // const gallo = 0xEc857D011742B3Bd9c7Af0984b4e937C47163427
 
-app.use(async function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header('Version', serverVersion);
+// app.use(async function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   res.header('Version', serverVersion);
 
-  next();
-});
+//   next();
+// });
 
 app.get('/', (req, res) => {
-  res.send("Hello world!")
+  res.send("Hello world! V" + serverVersion)
 });
 
 async function ReloadBuyers() {
