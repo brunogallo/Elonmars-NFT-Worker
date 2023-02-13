@@ -189,7 +189,7 @@ async function makePostRequestClaimStake(action, walletAddress, position, diamon
     while (true) {
         const walletAddress = wallet;
 
-        var addressData = await getNextClaim(wallet, false);
+        var addressData = await getNextClaim(wallet, true);
 
         var isPremium = true;
         var fullFarm = false;
