@@ -131,7 +131,7 @@ async function makePostRequestClaimStake(url, walletAddress, position, diamond) 
   
   async function SwapResource(walletAddress) {
     try {
-      var log = await makePostRequestSwap(urlSwapResource, walletAddress, 45);
+      var log = await makePostRequestSwap(urlSwapResource, walletAddress, 55);
     } catch (error) {
       
     }
