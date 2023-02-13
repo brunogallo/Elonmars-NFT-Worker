@@ -3,8 +3,6 @@ const { fork } = require('child_process');
 const fs = require('fs');
 const Web3 = require('web3');
 const BigNumber = require('bignumber.js');
-const cors = require('cors')
-
 
 // const web3 = new Web3(new Web3.providers.HttpProvider("https://bsc-dataseed.binance.org/"));
 const web3 = new Web3(new Web3.providers.HttpProvider("https://data-seed-prebsc-1-s1.binance.org:8545/"));
@@ -17,8 +15,6 @@ const backupTx = 'tx.txt';
 
 var bodyParser = require('body-parser');
 var app = express();
-
-app.use(cors());
 
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
