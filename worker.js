@@ -221,6 +221,6 @@ async function makePostRequestClaimStake(action, walletAddress, position, diamon
         console.log(`FINALIZADO PARA A WALLET (${walletAddress})`);
         console.log();
 
-        await new Promise(resolve => setTimeout(resolve, 1200000));
+        await new Promise(resolve => setTimeout(resolve, 300000));
     }
   }
