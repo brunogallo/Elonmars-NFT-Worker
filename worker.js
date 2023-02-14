@@ -191,8 +191,8 @@ async function makePostRequestClaimStake(action, walletAddress, position, diamon
 
         var addressData = await getNextClaim(wallet, true);
 
-        var isPremium = true;
-        var fullFarm = false;
+        var isPremium = false;
+        var fullFarm = true;
 
         console.log();
         console.log(`INICIANDO PARA A WALLET (${walletAddress})`);
